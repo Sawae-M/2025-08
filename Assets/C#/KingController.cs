@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System;
 
 public class KingController : MonoBehaviour
 {
@@ -53,20 +54,19 @@ public class KingController : MonoBehaviour
     void SpawnHealItem()
     {
         Vector3 spawnPos = transform.position + new Vector3(
-            Random.Range(-2f, 2f),
-            Random.Range(-2f, 2f),
+            UnityEngine.Random.Range(-2f, 2f),
+            UnityEngine.Random.Range(-2f, 2f),
             0);
         Instantiate(healItemPrefab, spawnPos, Quaternion.identity);
     }
 
-    // 敵に衝突したときの処理を追加
+    // 敵に衝突したときの処理
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (isDead) return;
 
-            if (collision.gameObject.CompareTag("Enemy"))
-         {
-
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
             if (hitSound != null && audioSource != null)
             {
                 audioSource.PlayOneShot(hitSound);
@@ -75,19 +75,19 @@ public class KingController : MonoBehaviour
             EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
             if (enemy != null)
             {
-                // Kingがダメージを受ける
+                // ダメージ
                 int damage = Mathf.Max(enemy.attackPower - 5, 1);
                 TakeDamage(damage);
 
-                // ノックバック方向を計算
+                // ノックバック方向
                 Vector2 dirToEnemy = (enemy.transform.position - transform.position).normalized;
                 Vector2 dirToKing = -dirToEnemy;
 
-                // Kingを吹き飛ばす
+                // 
                 rb.velocity = Vector2.zero;
                 rb.AddForce(dirToKing * 5f, ForceMode2D.Impulse);
 
-                // 敵を吹き飛ばす（EnemyController 側に GetKnockback がある前提）
+                // 敵を吹き飛ばす
                 enemy.GetKnockback(dirToEnemy, enemy.knockbackForce);
             }
         }
@@ -127,27 +127,34 @@ public class KingController : MonoBehaviour
         Time.timeScale = 0f;
 
         // 1秒間静止
-        //if (rb != null) rb.velocity = Vector2.zero;
         yield return new WaitForSecondsRealtime(delayBeforeEffect);
 
-        // Kingを非表示にする
         var sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.enabled = false;
         var col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
-        // 演出プレハブを生成
         if (gameOverEffectPrefab != null)
         {
             Instantiate(gameOverEffectPrefab, transform.position, Quaternion.identity);
         }
+        this.Invoke(() =>
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("End");
+        }, delayBeforeScene);
+    }
+}
+public static class MonoBehaviourExtensions
+{
+    public static void Invoke(this MonoBehaviour mb, Action action, float delay)
+    {
+        mb.StartCoroutine(InvokeRoutine(action, delay));
+    }
 
-        // 演出を見せる時間だけ待機
-        yield return new WaitForSecondsRealtime(delayBeforeScene);
-
-        Time.timeScale = 1f;
-
-        // ゲームオーバーシーン
-        SceneManager.LoadScene("End");
+    private static IEnumerator InvokeRoutine(Action action, float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        action?.Invoke();
     }
 }
