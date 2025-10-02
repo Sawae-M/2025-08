@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class FirstButton : MonoBehaviour
+public class SceneLoader : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    //ƒV[ƒ“–¼‚ÅØ‚è‘Ö‚¦‚é
+    public void Load(string sceneName)
     {
-        
+        SceneManager.LoadScene(sceneName);
     }
 
-    // Update is called once per frame
-    void Update()
+    // InputField ‚É“ü—Í‚³‚ê‚½•¶š—ñ‚ÅØ‚è‘Ö‚¦‚é
+    public void Load(InputField inputField)
     {
-        
+        Load(inputField.text);
     }
 }

@@ -1,3 +1,4 @@
+# Unity generated
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -5,9 +6,18 @@
 [Bb]uilds/
 [Ll]ogs/
 [Mm]emoryCaptures/
+sysinfo.txt
+
+# Visual Studio
 .vs/
-.gradle/
 *.csproj
+*.unityproj
 *.sln
+*.suo
+*.tmp
 *.user
-*.unitypackage
+*.userprefs
+
+# OS
+.DS_Store
+Thumbs.db
